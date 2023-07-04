@@ -8,7 +8,7 @@ import pkg_resources
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from transformers import AdamW, AutoConfig, AutoTokenizer, PretrainedConfig, PreTrainedTokenizer
+from transformers import AdamW, AutoConfig, AutoTokenizer, PretrainedConfig, PreTrainedTokenizer, BertTokenizerFast
 from transformers.optimization import (
     Adafactor,
     get_cosine_schedule_with_warmup,
@@ -86,10 +86,20 @@ class BaseTransformer(pl.LightningModule):
                 setattr(self.config, p, getattr(self.hparams, p))
 
         if tokenizer is None:
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.hparams.tokenizer_name if self.hparams.tokenizer_name else self.hparams.model_name_or_path,
-                cache_dir=cache_dir,
-            )
+            self.tokenizer = BertTokenizerFast.from_pretrained(
+            self.hparams.tokenizer_name if self.hparams.tokenizer_name else self.hparams.model_name_or_path,
+            do_lower_case=False,
+            unk_token="<unk>", 
+            sep_token="</s>", 
+            pad_token="<pad>", 
+            cls_token="<s>", 
+            mask_token="<mask>",
+            max_seq_len=128
+        )
+            # self.tokenizer = AutoTokenizer.from_pretrained(
+            #     self.hparams.tokenizer_name if self.hparams.tokenizer_name else self.hparams.model_name_or_path,
+            #     cache_dir=cache_dir,
+            # )
         else:
             self.tokenizer = tokenizer
         self.model = model_type.from_pretrained(
@@ -205,7 +215,7 @@ class BaseTransformer(pl.LightningModule):
         save_path = self.output_dir.joinpath("transformers")
         self.model.config.save_step = self.step_count
         self.model.save_pretrained(save_path)
-        self.tokenizer.save_pretrained(save_path)
+        # self.tokenizer.save_pretrained(save_path)
 
     @staticmethod
     def add_specific_args(parser: argparse.ArgumentParser, root_dir: str) -> argparse.ArgumentParser:

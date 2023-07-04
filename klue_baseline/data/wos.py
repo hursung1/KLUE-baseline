@@ -237,10 +237,10 @@ class WoSProcessor(DataProcessor):
                 return None  # type: ignore[return-value]
             else:
                 input_id = input_id[len_input_id - (self.hparams.max_seq_length - 2) :]
-                logger.info(
-                    f"[{dataset_type}] Truncate the context [{example.guid}] "
-                    f"since the length of dialogue exceeds {self.hparams.max_seq_length - 2} < {len_input_id}"
-                )
+                # logger.info(
+                #     f"[{dataset_type}] Truncate the context [{example.guid}] "
+                #     f"since the length of dialogue exceeds {self.hparams.max_seq_length - 2} < {len_input_id}"
+                # )
         input_id = [self.tokenizer.cls_token_id] + input_id + [self.tokenizer.sep_token_id]
         segment_id = [0] * len(input_id)
 

@@ -67,12 +67,28 @@ def convert_examples_to_features(
 
     labels = [label_from_example(example) for example in examples]
 
-    batch_encoding = tokenizer(
-        [(example.text_a, example.text_b) for example in examples],
-        max_length=max_length,
-        padding="max_length",
-        truncation=True,
-    )
+    batch_a = [example.text_a for example in examples]
+    batch_b = [example.text_b for example in examples]
+
+    if not batch_b[0]: 
+        batch_encoding = tokenizer(
+            batch_a,
+            # [(example.text_a, example.text_b) for example in examples],
+            max_length=max_length,
+            padding="max_length",
+            truncation=True,
+            return_token_type_ids=False
+        )
+    else:
+        batch_encoding = tokenizer(
+            batch_a,
+            batch_b,
+            # [(example.text_a, example.text_b) for example in examples],
+            max_length=max_length,
+            padding="max_length",
+            truncation=True,
+            return_token_type_ids=False
+        )
 
     features = []
     for i in range(len(examples)):

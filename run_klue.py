@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
@@ -61,7 +62,8 @@ def add_general_args(parser: argparse.ArgumentParser, root_dir: str) -> argparse
         default=1,
         help="Number of updates steps to accumulate before performing a backward/update pass.",
     )
-    parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
+    # parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
+    parser.add_argument("--seed", type=int, default=None, help="random seed for initialization")
     parser.add_argument("--metric_key", type=str, default="loss", help="The name of monitoring metric")
     parser.add_argument(
         "--patience",
@@ -180,7 +182,9 @@ def main() -> None:
 
         # load the best checkpoint automatically
         trainer.get_model().eval_dataset_type = "valid"
+        start = time.time()
         val_results = trainer.test(test_dataloaders=task.val_loader, verbose=False)[0]
+        end = time.time()
         print("-" * 80)
 
         output_val_results_file = os.path.join(args.output_dir, "val_results.txt")
@@ -188,6 +192,7 @@ def main() -> None:
             for k, v in val_results.items():
                 writer.write(f"{k} = {v}\n")
                 print(f" - {k} : {v}")
+            writer.write(f"valid time (sec): {end-start}")
         print("-" * 80)
 
     elif command == Command.Evaluate:

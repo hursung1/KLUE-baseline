@@ -200,7 +200,7 @@ class DSTTransformer(BaseTransformer):
             os.makedirs(save_path, exist_ok=True)
         self.config.save_step = self.step_count
         torch.save(self.state_dict(), save_path.joinpath(f"trade-{self.step_count}.bin"))
-        self.tokenizer.save_pretrained(save_path)
+        self.tokenizer.save_pretrained(str(save_path))
         self.config.save_pretrained(save_path)
 
     @staticmethod

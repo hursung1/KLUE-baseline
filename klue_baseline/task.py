@@ -3,7 +3,7 @@ import json
 import logging
 import os
 
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, BertTokenizerFast, BertTokenizer
 
 from klue_baseline.data import DataProcessor, KlueDataModule
 from klue_baseline.models import BaseTransformer, Mode
@@ -30,9 +30,35 @@ class KlueTask:
         """Setup data, tokenizer, and model."""
         self.set_filename(args)
 
-        tokenizer = AutoTokenizer.from_pretrained(
-            args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
-        )
+        # tokenizer = AutoTokenizer.from_pretrained(
+        #     args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
+        # )
+
+        tokenizer_path = args.tokenizer_name if args.tokenizer_name else args.model_name_or_path
+
+        if args.task == "klue-ner" or args.task == "klue-mrc" or args.task == "klue-re" or args.task == "wos":
+            tokenizer = BertTokenizer.from_pretrained(
+                tokenizer_path,
+                do_lower_case=False,
+                unk_token="<unk>", 
+                sep_token="</s>", 
+                pad_token="<pad>", 
+                cls_token="<s>", 
+                mask_token="<mask>",
+                max_seq_len=128
+            )
+
+        else:
+            tokenizer = BertTokenizerFast.from_pretrained(
+                tokenizer_path,
+                do_lower_case=False,
+                unk_token="<unk>", 
+                sep_token="</s>", 
+                pad_token="<pad>", 
+                cls_token="<s>", 
+                mask_token="<mask>",
+                max_seq_len=128
+            )
         processor = self.processor_type(args, tokenizer)
         datamodule = self.processor_type.datamodule_type(args, processor)
 

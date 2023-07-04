@@ -284,7 +284,7 @@ class DPTransformer(BaseTransformer):
         self.config.save_step = self.step_count
         torch.save(self.state_dict(), save_path.joinpath("dp-model.bin"))
         self.config.save_pretrained(save_path)
-        self.tokenizer.save_pretrained(save_path)
+        self.tokenizer.save_pretrained(str(save_path))
 
     @staticmethod
     def add_specific_args(parser: argparse.ArgumentParser, root_dir: str) -> argparse.ArgumentParser:
